@@ -42,7 +42,7 @@ class UnboundMethod
 
   def bind(recv)
     unless recv.kind_of?(@owner)
-      raise TypeError, "bind argument must be an instance of #{@rclass}"
+      raise TypeError, "bind argument must be an instance of #{@owner}"
     end
     Method.new(@rclass, @owner, recv, @id, @proc)
   end
