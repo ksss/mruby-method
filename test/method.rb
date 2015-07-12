@@ -104,10 +104,20 @@ end
 assert 'owner' do
   c = Class.new do
     def foo; end
+    def self.bar; end
   end
-  assert_equal(c, c.instance_method(:foo).owner)
+  m = Module.new do
+    def baz; end
+  end
+  c.include(m)
   c2 = Class.new(c)
+
+  assert_equal(c, c.instance_method(:foo).owner)
   assert_equal(c, c2.instance_method(:foo).owner)
+
+  assert_equal(c, c.new.method(:foo).owner)
+  assert_equal(c, c2.new.method(:foo).owner)
+  assert_equal(c.singleton_class, c2.method(:bar).owner)
 end
 
 assert 'owner missing' do
