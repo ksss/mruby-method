@@ -40,7 +40,7 @@ mrb_kernel_method(mrb_state *mrb, mrb_value self)
 
   mrb_search_method_owner(mrb, mrb_class(mrb, self), self, id, &owner, &proc);
 
-  argv[0] = self;
+  argv[0] = mrb_obj_value(mrb_obj_class(mrb, self));
   argv[1] = mrb_obj_value(owner);
   argv[2] = self;
   argv[3] = id;
