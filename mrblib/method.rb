@@ -34,6 +34,10 @@ class Method
   def source_location
     @proc.source_location
   end
+
+  def parameters
+    @proc.parameters
+  end
 end
 
 class UnboundMethod
@@ -61,5 +65,9 @@ class UnboundMethod
 
   def source_location
     @proc.source_location
+  end
+
+  def parameters
+    @proc.parameters
   end
 end

@@ -87,6 +87,20 @@ assert 'UnboundMethod#source_location' do
   assert_equal [filename, lineno], klass.instance_method(:find_me_if_you_can).source_location
 end
 
+assert 'Method#parameters' do
+  klass = Class.new {
+    def foo(a, b=nil, *c) end
+  }
+  assert_equal [[:req, :a], [:opt, :b], [:rest, :c]], klass.new.method(:foo).parameters
+end
+
+assert 'UnboundMethod#parameters' do
+  klass = Module.new {
+    def foo(a, b=nil, *c) end
+  }
+  assert_equal [[:req, :a], [:opt, :b], [:rest, :c]], klass.instance_method(:foo).parameters
+end
+
 assert 'owner' do
   c = Class.new do
     def foo; end
