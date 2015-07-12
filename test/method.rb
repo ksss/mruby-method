@@ -65,6 +65,28 @@ assert 'arity' do
   }.new.run
 end
 
+assert 'Method#source_location' do
+  filename = __FILE__
+  klass = Class.new
+
+  lineno = __LINE__ + 1
+  klass.define_method(:find_me_if_you_can) {}
+  assert_equal [filename, lineno], klass.new.method(:find_me_if_you_can).source_location
+
+  lineno = __LINE__ + 1
+  klass.define_singleton_method(:s_find_me_if_you_can) {}
+  assert_equal [filename, lineno], klass.method(:s_find_me_if_you_can).source_location
+end
+
+assert 'UnboundMethod#source_location' do
+  filename = __FILE__
+  klass = Class.new
+
+  lineno = __LINE__ + 1
+  klass.define_method(:find_me_if_you_can) {}
+  assert_equal [filename, lineno], klass.instance_method(:find_me_if_you_can).source_location
+end
+
 assert 'owner' do
   c = Class.new do
     def foo; end

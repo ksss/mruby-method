@@ -30,6 +30,10 @@ class Method
   def arity
     @proc.arity
   end
+
+  def source_location
+    @proc.source_location
+  end
 end
 
 class UnboundMethod
@@ -53,5 +57,9 @@ class UnboundMethod
 
   def name
     @id
+  end
+
+  def source_location
+    @proc.source_location
   end
 end
