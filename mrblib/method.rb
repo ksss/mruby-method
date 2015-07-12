@@ -38,6 +38,11 @@ class Method
   def parameters
     @proc.parameters
   end
+
+  def to_s
+    s = "#<#{self.class}: #{@owner}##{@id}>"
+  end
+  alias inspect to_s
 end
 
 class UnboundMethod
@@ -70,4 +75,9 @@ class UnboundMethod
   def parameters
     @proc.parameters
   end
+
+  def to_s
+    s = "#<#{self.class}: #{@owner}##{@id}>"
+  end
+  alias inspect to_s
 end

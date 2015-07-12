@@ -101,6 +101,21 @@ assert 'UnboundMethod#parameters' do
   assert_equal [[:req, :a], [:opt, :b], [:rest, :c]], klass.instance_method(:foo).parameters
 end
 
+assert 'to_s' do
+  o = Object.new
+  def o.foo; end
+  m = o.method(:foo)
+  m = o.method(:foo)
+  assert_equal("#<UnboundMethod: #{ class << o; self; end.inspect }#foo>", m.unbind.inspect)
+
+  c = Class.new
+  c.class_eval { def foo; end; }
+  m = c.new.method(:foo)
+  assert_equal("#<Method: #{ c.inspect }#foo>", m.inspect)
+  m = c.instance_method(:foo)
+  assert_equal("#<UnboundMethod: #{ c.inspect }#foo>", m.inspect)
+end
+
 assert 'owner' do
   c = Class.new do
     def foo; end
