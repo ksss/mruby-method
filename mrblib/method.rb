@@ -10,6 +10,10 @@ class Method
   def call(*args)
     @recv.__send__(@id, *args)
   end
+  
+  def to_proc
+    proc {|*args| self.call(*args)}
+  end
 
   def owner
     @owner
