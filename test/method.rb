@@ -101,6 +101,20 @@ assert 'UnboundMethod#parameters' do
   assert_equal [[:req, :a], [:opt, :b], [:rest, :c]], klass.instance_method(:foo).parameters
 end
 
+assert 'Method#to_proc' do
+  m = 3.method(:+)
+  assert_kind_of Proc, m.to_proc
+  assert_equal 7, m.call(4)
+
+  o = Object.new
+  def o.foo(a, b=nil, *c)
+    [a, b, c]
+  end
+  assert_equal [:bar, nil, []], o.method(:foo).to_proc.call(:bar)
+#  We can fix this issue but leave until the problem
+#  assert_equal o.method(:foo).arity, o.method(:foo).to_proc.arity
+end
+
 assert 'to_s' do
   o = Object.new
   def o.foo; end
