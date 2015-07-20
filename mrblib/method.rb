@@ -1,14 +1,14 @@
 class Method
-  def initialize(rclass, owner, recv, id, pr)
+  def initialize(rclass, owner, recv, name, pr)
     @rclass = rclass
     @owner = owner
     @recv = recv
-    @id = id
+    @name = name
     @proc = pr
   end
 
   def call(*args)
-    @recv.__send__(@id, *args)
+    @recv.__send__(@name, *args)
   end
 
   def to_proc
@@ -26,11 +26,11 @@ class Method
   end
 
   def name
-    @id
+    @name
   end
 
   def unbind
-    UnboundMethod.new(@rclass, @owner, @id, @proc)
+    UnboundMethod.new(@rclass, @owner, @name, @proc)
   end
 
   def arity
@@ -46,16 +46,16 @@ class Method
   end
 
   def to_s
-    s = "#<#{self.class}: #{@owner}##{@id}>"
+    s = "#<#{self.class}: #{@owner}##{@name}>"
   end
   alias inspect to_s
 end
 
 class UnboundMethod
-  def initialize(rclass, owner, id, pr)
+  def initialize(rclass, owner, name, pr)
     @rclass = rclass
     @owner = owner
-    @id = id
+    @name = name
     @proc = pr
   end
 
@@ -63,7 +63,7 @@ class UnboundMethod
     unless recv.kind_of?(@owner)
       raise TypeError, "bind argument must be an instance of #{@owner}"
     end
-    Method.new(@rclass, @owner, recv, @id, @proc)
+    Method.new(@rclass, @owner, recv, @name, @proc)
   end
 
   def owner
@@ -71,7 +71,7 @@ class UnboundMethod
   end
 
   def name
-    @id
+    @name
   end
 
   def source_location
@@ -83,7 +83,7 @@ class UnboundMethod
   end
 
   def to_s
-    s = "#<#{self.class}: #{@owner}##{@id}>"
+    s = "#<#{self.class}: #{@owner}##{@name}>"
   end
   alias inspect to_s
 end
