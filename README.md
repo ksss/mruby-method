@@ -11,3 +11,13 @@ p Enumerable.instance_method(:find_all).source_location
 ```
 
 ![https://raw.githubusercontent.com/ksss/mruby-method/master/find_all.png](https://raw.githubusercontent.com/ksss/mruby-method/master/find_all.png)
+
+# Note
+
+`source_location` method need this configuration in build_config.rb
+
+```
+MRuby::Build.new do |conf|
+  enable_debug
+end
+```
