@@ -1,6 +1,8 @@
 mruby-method
 ===
 
+[![Build Status](https://travis-ci.org/ksss/mruby-method.svg)](https://travis-ci.org/ksss/mruby-method)
+
 A implementetion of class **Method** and **UnboundMethod** for mruby
 
 ```ruby
