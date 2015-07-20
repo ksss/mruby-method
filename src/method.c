@@ -76,14 +76,12 @@ mrb_module_instance_method(mrb_state *mrb, mrb_value self)
 void
 mrb_mruby_method_gem_init(mrb_state* mrb)
 {
-  struct RClass *unbound_method = mrb_define_class(mrb, "UnboundMethod", mrb->object_class);
-  struct RClass *method = mrb_define_class(mrb, "Method", mrb->object_class);
-  struct RClass *module = mrb->module_class;
-  struct RClass *kernel = mrb->kernel_module;
+  mrb_define_class(mrb, "UnboundMethod", mrb->object_class);
+  mrb_define_class(mrb, "Method", mrb->object_class);
 
-  mrb_define_method(mrb, kernel, "method", mrb_kernel_method, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, mrb->kernel_module, "method", mrb_kernel_method, MRB_ARGS_REQ(1));
 
-  mrb_define_method(mrb, module, "instance_method", mrb_module_instance_method, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, mrb->module_class, "instance_method", mrb_module_instance_method, MRB_ARGS_REQ(1));
 }
 
 void
