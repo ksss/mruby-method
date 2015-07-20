@@ -65,6 +65,16 @@ assert 'arity' do
   }.new.run
 end
 
+assert 'Method and UnboundMethod should not be have a `new` method' do
+  assert_raise(NoMethodError){ Method.new }
+  assert_raise(NoMethodError){ UnboundMethod.new }
+end
+
+assert 'instance' do
+  assert_kind_of Method, 1.method(:+)
+  assert_kind_of UnboundMethod, Fixnum.instance_method(:+)
+end
+
 assert 'Method#source_location' do
   filename = __FILE__
   klass = Class.new
