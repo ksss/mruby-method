@@ -2,6 +2,7 @@ class Method
   def call(*args)
     @recv.__send__(@name, *args)
   end
+  alias_method :[], :call
 
   def to_proc
     lambda { |*args|

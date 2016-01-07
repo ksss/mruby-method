@@ -75,6 +75,11 @@ assert 'instance' do
   assert_kind_of UnboundMethod, Fixnum.instance_method(:+)
 end
 
+assert 'Method#call' do
+  assert_equal 3, 1.method(:+).call(2)
+  assert_equal 5, 1.method(:+)[4]
+end
+
 assert 'Method#source_location' do
   filename = __FILE__
   klass = Class.new
