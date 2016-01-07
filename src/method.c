@@ -100,11 +100,13 @@ mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_val
         *owner = c;
       }
       else {
-        mrb_raisef(mrb, E_ARGUMENT_ERROR, "no search method `%S'", name);
+        const char *s = mrb_class_name(mrb, c);
+        mrb_raisef(mrb, E_NAME_ERROR, "undefined method `%S' for class `%S'", name, mrb_str_new_static(mrb, s, strlen(s)));
       }
     }
     else {
-      mrb_raisef(mrb, E_ARGUMENT_ERROR, "no search method `%S'", name);
+      const char *s = mrb_class_name(mrb, c);
+      mrb_raisef(mrb, E_NAME_ERROR, "undefined method `%S' for class `%S'", name, mrb_str_new_static(mrb, s, strlen(s)));
     }
   }
 }

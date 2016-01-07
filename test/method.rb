@@ -199,3 +199,12 @@ assert 'unbind' do
     um.bind(Base.new)
   end
 end
+
+assert 'Kernel#method' do
+  c1 = Class.new {
+    def foo; :foo; end
+  }
+  o = c1.new
+  assert_kind_of Method, o.method(:foo)
+  assert_raise(NameError) { o.method(:bar) }
+end
