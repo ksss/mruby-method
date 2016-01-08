@@ -208,3 +208,16 @@ assert 'Kernel#method' do
   assert_kind_of Method, o.method(:foo)
   assert_raise(NameError) { o.method(:bar) }
 end
+
+assert 'Kernel#singleton_method' do
+  c1 = Class.new {
+    def foo; :foo; end
+  }
+  o = c1.new
+  def o.bar; :bar; end
+  assert_kind_of Method, o.method(:foo)
+  assert_raise(NameError) { o.singleton_method(:foo) }
+  assert_kind_of Method, o.singleton_method(:bar)
+  m = assert_nothing_raised(NameError) { break o.singleton_method(:bar) }
+  assert_equal(:bar, m.call)
+end
