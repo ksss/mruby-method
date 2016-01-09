@@ -24,6 +24,7 @@ MRuby::Build.new do |conf|
   # or
   conf.gem :github => "ksss/mruby-method"
 end
+```
 
 # Note
 
