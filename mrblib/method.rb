@@ -35,7 +35,7 @@ class Method
   end
 
   def to_s
-    s = "#<#{self.class}: #{@owner}##{@name}>"
+    "#<#{self.class}: #{@owner}##{@name}>"
   end
   alias inspect to_s
 end
