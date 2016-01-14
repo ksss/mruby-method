@@ -86,6 +86,30 @@ method_unbind(mrb_state *mrb, mrb_value self)
   return mrb_obj_value(ume);
 }
 
+static mrb_value
+method_super_method(mrb_state *mrb, mrb_value self)
+{
+  struct RClass *rclass = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@rclass")));
+  mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
+  mrb_sym name = mrb_symbol(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name")));
+  struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
+  struct RClass *super = owner->super;
+  struct RProc *proc;
+  struct RObject *me;
+
+  proc = mrb_method_search_vm(mrb, &super, name);
+  if (!proc) return mrb_nil_value();
+
+  me = method_object_alloc(mrb,
+    rclass,
+    super,
+    recv,
+    name,
+    proc
+  );
+  return mrb_obj_value(me);
+}
+
 static void
 mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym name, struct RClass **owner, struct RProc **proc)
 {
@@ -156,6 +180,7 @@ mrb_mruby_method_gem_init(mrb_state* mrb)
 
   mrb_undef_class_method(mrb, method, "new");
   mrb_define_method(mrb, method, "unbind", method_unbind, MRB_ARGS_NONE());
+  mrb_define_method(mrb, method, "super_method", method_super_method, MRB_ARGS_NONE());
 
   mrb_define_method(mrb, mrb->kernel_module, "method", mrb_kernel_method, MRB_ARGS_REQ(1));
 

@@ -225,3 +225,12 @@ assert 'Kernel#singleton_method' do
   m = assert_nothing_raised(NameError) { break o.singleton_method(:bar) }
   assert_equal(:bar, m.call)
 end
+
+assert 'Method#super_method' do
+  o = Derived.new
+  m = o.method(:foo).super_method
+  assert_equal(Base, m.owner)
+  assert_true(o.equal? m.receiver)
+  assert_equal(:foo, m.name)
+  assert_nil(m.super_method)
+end
