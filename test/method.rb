@@ -234,3 +234,15 @@ assert 'Method#super_method' do
   assert_equal(:foo, m.name)
   assert_nil(m.super_method)
 end
+
+assert 'Method#==' do
+  o = Object.new
+  class << o
+    def foo; end
+  end
+  assert_not_equal(o.method(:foo), nil)
+  m = o.method(:foo)
+  def m.foo; end
+  assert_not_equal(o.method(:foo), m)
+  assert_equal(o.method(:foo), o.method(:foo))
+end

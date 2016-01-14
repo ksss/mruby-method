@@ -1,4 +1,13 @@
 class Method
+  def ==(other)
+    return false unless Method === other
+    return false if self.class != other.class
+    return false if owner != other.owner
+    return false if @recv != other.instance_variable_get(:@recv)
+
+    true
+  end
+
   def call(*args)
     @recv.__send__(@name, *args)
   end
