@@ -86,7 +86,8 @@ method_super_method(mrb_state *mrb, mrb_value self)
   proc = mrb_method_search_vm(mrb, &super, name);
   if (!proc) return mrb_nil_value();
 
-  me = method_object_alloc(mrb,
+  me = method_object_alloc(
+    mrb,
     mrb_obj_class(mrb, self),
     rclass,
     super,
@@ -135,7 +136,15 @@ mrb_kernel_method(mrb_state *mrb, mrb_value self)
 
   mrb_search_method_owner(mrb, mrb_class(mrb, self), self, name, &owner, &proc);
 
-  me = method_object_alloc(mrb, mrb_class_get(mrb, "Method"), mrb_obj_class(mrb, self), owner, self, name, proc);
+  me = method_object_alloc(
+    mrb,
+    mrb_class_get(mrb, "Method"),
+    mrb_obj_class(mrb, self),
+    owner,
+    self,
+    name,
+    proc
+  );
   return mrb_obj_value(me);
 }
 
