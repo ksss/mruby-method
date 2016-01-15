@@ -246,3 +246,13 @@ assert 'Method#==' do
   assert_not_equal(o.method(:foo), m)
   assert_equal(o.method(:foo), o.method(:foo))
 end
+
+assert 'UnboundMethod#super_method' do
+  m = Derived.instance_method(:foo)
+  m = m.super_method
+  assert_equal(Base.instance_method(:foo), m)
+  assert_nil(m.super_method)
+
+  m = Object.instance_method(:object_id)
+  assert_nil(m.super_method)
+end

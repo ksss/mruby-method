@@ -172,6 +172,7 @@ mrb_mruby_method_gem_init(mrb_state* mrb)
 
   mrb_undef_class_method(mrb, unbound_method, "new");
   mrb_define_method(mrb, unbound_method, "bind", unbound_method_bind, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, unbound_method, "super_method", method_super_method, MRB_ARGS_NONE());
 
   mrb_undef_class_method(mrb, method, "new");
   mrb_define_method(mrb, method, "unbind", method_unbind, MRB_ARGS_NONE());
