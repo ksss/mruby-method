@@ -8,7 +8,6 @@ static struct RObject *
 method_object_alloc(
   mrb_state *mrb,
   struct RClass *mclass,
-  struct RClass *rclass,
   struct RClass *owner,
   mrb_value recv,
   mrb_sym name,
@@ -16,7 +15,6 @@ method_object_alloc(
 ) {
   struct RObject *c = (struct RObject*)mrb_obj_alloc(mrb, MRB_TT_CLASS, mclass);
 
-  mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@rclass"), mrb_obj_value(rclass));
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@recv"), recv);
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
@@ -29,7 +27,6 @@ static mrb_value
 unbound_method_bind(mrb_state *mrb, mrb_value self)
 {
   struct RObject *me;
-  mrb_value rclass = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@rclass"));
   mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
@@ -43,7 +40,6 @@ unbound_method_bind(mrb_state *mrb, mrb_value self)
   me = method_object_alloc(
     mrb,
     mrb_class_get(mrb, "Method"),
-    mrb_class_ptr(rclass),
     mrb_class_ptr(owner),
     recv,
     mrb_symbol(name),
@@ -56,14 +52,12 @@ static mrb_value
 method_unbind(mrb_state *mrb, mrb_value self)
 {
   struct RObject *ume;
-  mrb_value rclass = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@rclass"));
   mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
   ume = method_object_alloc(
     mrb,
     mrb_class_get(mrb, "UnboundMethod"),
-    mrb_class_ptr(rclass),
     mrb_class_ptr(owner),
     mrb_nil_value(),
     mrb_symbol(name),
@@ -75,7 +69,6 @@ method_unbind(mrb_state *mrb, mrb_value self)
 static mrb_value
 method_super_method(mrb_state *mrb, mrb_value self)
 {
-  struct RClass *rclass = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@rclass")));
   mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
   mrb_sym name = mrb_symbol(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name")));
   struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
@@ -89,7 +82,6 @@ method_super_method(mrb_state *mrb, mrb_value self)
   me = method_object_alloc(
     mrb,
     mrb_obj_class(mrb, self),
-    rclass,
     super,
     recv,
     name,
@@ -139,7 +131,6 @@ mrb_kernel_method(mrb_state *mrb, mrb_value self)
   me = method_object_alloc(
     mrb,
     mrb_class_get(mrb, "Method"),
-    mrb_obj_class(mrb, self),
     owner,
     self,
     name,
@@ -163,7 +154,6 @@ mrb_module_instance_method(mrb_state *mrb, mrb_value self)
   ume = method_object_alloc(
     mrb,
     mrb_class_get(mrb, "UnboundMethod"),
-    mrb_class_ptr(self),
     owner,
     mrb_nil_value(),
     name,
