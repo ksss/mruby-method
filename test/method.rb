@@ -256,3 +256,23 @@ assert 'UnboundMethod#super_method' do
   m = Object.instance_method(:object_id)
   assert_nil(m.super_method)
 end
+
+assert 'UnboundMethod#bind' do
+  m = Module.new{ def meth() :meth end }.instance_method(:meth)
+  assert_kind_of Method, m.bind(1)
+  assert_kind_of Method, m.bind(:sym)
+  assert_kind_of Method, m.bind(Object.new)
+  # TODO: not implemented yet
+  # assert_equal(:meth, m.bind(1).call)
+  # assert_equal(:meth, m.bind(:sym).call)
+  # assert_equal(:meth, m.bind(Object.new).call)
+  sc = Class.new {
+    class << self
+      def foo
+      end
+    end
+  }.singleton_class
+  assert_raise(TypeError) { sc.instance_method(:foo).bind([]) }
+  assert_raise(TypeError) { Array.instance_method(:each).bind(1) }
+  assert_kind_of Method, Object.instance_method(:object_id).bind(Object.new)
+end

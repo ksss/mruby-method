@@ -34,8 +34,15 @@ unbound_method_bind(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "o", &recv);
 
-  if (!mrb_obj_is_kind_of(mrb, recv, mrb_class_ptr(owner))) {
-    mrb_raisef(mrb, E_TYPE_ERROR, "bind argument must be an instance of %S", owner);
+  if (mrb_type(owner) != MRB_TT_MODULE &&
+      mrb_class_ptr(owner) != mrb_obj_class(mrb, recv) &&
+      !mrb_obj_is_kind_of(mrb, recv, mrb_class_ptr(owner))) {
+        if (mrb_type(owner) == MRB_TT_SCLASS) {
+          mrb_raise(mrb, E_TYPE_ERROR, "singleton method called for a different object");
+        } else {
+          const char *s = mrb_class_name(mrb, mrb_class_ptr(owner));
+          mrb_raisef(mrb, E_TYPE_ERROR, "bind argument must be an instance of %S", mrb_str_new_static(mrb, s, strlen(s)));
+        }
   }
   me = method_object_alloc(
     mrb,
