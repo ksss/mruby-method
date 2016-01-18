@@ -271,7 +271,6 @@ assert 'UnboundMethod#bind' do
   assert_kind_of Method, m.bind(1)
   assert_kind_of Method, m.bind(:sym)
   assert_kind_of Method, m.bind(Object.new)
-  # TODO: not implemented yet
   assert_equal(:meth, m.bind(1).call)
   assert_equal(:meth, m.bind(:sym).call)
   assert_equal(:meth, m.bind(Object.new).call)
