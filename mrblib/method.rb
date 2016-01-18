@@ -8,11 +8,6 @@ class Method
     true
   end
 
-  def call(*args)
-    @recv.__send__(@name, *args)
-  end
-  alias_method :[], :call
-
   def to_proc
     lambda { |*args|
       self.call(*args)

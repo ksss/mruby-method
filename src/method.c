@@ -56,6 +56,19 @@ unbound_method_bind(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+method_call(mrb_state *mrb, mrb_value self)
+{
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
+  struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
+  mrb_int argc;
+  mrb_value *argv;
+
+  mrb_get_args(mrb, "*", &argv, &argc);
+  return mrb_yield_with_class(mrb, proc, argc, argv, recv, owner);
+}
+
+static mrb_value
 method_unbind(mrb_state *mrb, mrb_value self)
 {
   struct RObject *ume;
@@ -180,6 +193,8 @@ mrb_mruby_method_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, unbound_method, "super_method", method_super_method, MRB_ARGS_NONE());
 
   mrb_undef_class_method(mrb, method, "new");
+  mrb_define_method(mrb, method, "call", method_call, MRB_ARGS_ANY());
+  mrb_alias_method(mrb, method, mrb_intern_lit(mrb, "[]"), mrb_intern_lit(mrb, "call"));
   mrb_define_method(mrb, method, "unbind", method_unbind, MRB_ARGS_NONE());
   mrb_define_method(mrb, method, "super_method", method_super_method, MRB_ARGS_NONE());
 

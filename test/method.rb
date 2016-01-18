@@ -77,7 +77,15 @@ end
 
 assert 'Method#call' do
   assert_equal 3, 1.method(:+).call(2)
-  assert_equal 5, 1.method(:+)[4]
+  assert_equal "ab", "a".method(:+)["b"]
+  # TODO: suppert with block
+  # i = Class.new {
+  #  def bar
+  #    yield 3
+  #  end
+  # }.new
+  # assert_raise(LocalJumpError) { i.method(:bar).call }
+  # assert_equal 3, i.method(:bar).call { |i| i }
 end
 
 assert 'Method#source_location' do
@@ -186,7 +194,7 @@ assert 'receiver name owner' do
   assert_equal(class << o; self; end, m.unbind.owner)
 end
 
-assert 'unbind' do
+assert 'Method#unbind' do
   assert_equal(:derived, Derived.new.foo)
   um = Derived.new.method(:foo).unbind
   assert_kind_of(UnboundMethod, um)
@@ -194,7 +202,7 @@ assert 'unbind' do
     def foo() :changed end
   end
   assert_equal(:changed, Derived.new.foo)
-  assert_equal(:changed, um.bind(Derived.new).call)
+  assert_equal(:derived, um.bind(Derived.new).call)
   assert_raise(TypeError) do
     um.bind(Base.new)
   end
@@ -259,13 +267,14 @@ end
 
 assert 'UnboundMethod#bind' do
   m = Module.new{ def meth() :meth end }.instance_method(:meth)
+  assert_raise(ArgumentError) { m.bind }
   assert_kind_of Method, m.bind(1)
   assert_kind_of Method, m.bind(:sym)
   assert_kind_of Method, m.bind(Object.new)
   # TODO: not implemented yet
-  # assert_equal(:meth, m.bind(1).call)
-  # assert_equal(:meth, m.bind(:sym).call)
-  # assert_equal(:meth, m.bind(Object.new).call)
+  assert_equal(:meth, m.bind(1).call)
+  assert_equal(:meth, m.bind(:sym).call)
+  assert_equal(:meth, m.bind(Object.new).call)
   sc = Class.new {
     class << self
       def foo
