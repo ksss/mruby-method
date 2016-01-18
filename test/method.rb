@@ -253,6 +253,8 @@ assert 'Method#==' do
   def m.foo; end
   assert_not_equal(o.method(:foo), m)
   assert_equal(o.method(:foo), o.method(:foo))
+  assert_false(o.method(:foo).eql? m)
+  assert_true(o.method(:foo).eql? o.method(:foo))
 end
 
 assert 'UnboundMethod#super_method' do

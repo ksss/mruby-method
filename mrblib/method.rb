@@ -7,6 +7,7 @@ class Method
 
     true
   end
+  alias_method :eql?, :==
 
   def to_proc
     lambda { |*args|

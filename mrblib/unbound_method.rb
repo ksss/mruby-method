@@ -7,6 +7,7 @@ class UnboundMethod
 
     true
   end
+  alias_method :eql?, :==
 
   def owner
     @owner
