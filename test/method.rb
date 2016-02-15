@@ -31,7 +31,7 @@ assert 'demo' do
   assert_equal "Hello there, Dave!\n", interpreter.ret
 end
 
-assert 'arity' do
+assert 'Method#arity' do
   Class.new {
     attr_accessor :done
     def initialize; @done = false; end
