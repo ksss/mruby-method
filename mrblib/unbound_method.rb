@@ -3,6 +3,7 @@ class UnboundMethod
     return false unless UnboundMethod === other
     return false if self.class != other.class
     return false if owner != other.owner
+    return true if @proc == other.instance_variable_get(:@proc)
     return false if @name != other.name
 
     true
