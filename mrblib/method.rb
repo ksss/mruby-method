@@ -4,6 +4,8 @@ class Method
     return false if self.class != other.class
     return false if owner != other.owner
     return false if @recv != other.receiver
+    return false if @name != other.name
+
     true
   end
   alias_method :eql?, :==
