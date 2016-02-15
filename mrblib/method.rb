@@ -3,8 +3,7 @@ class Method
     return false unless Method === other
     return false if self.class != other.class
     return false if owner != other.owner
-    return false if @recv != other.instance_variable_get(:@recv)
-
+    return false if @recv != other.receiver
     true
   end
   alias_method :eql?, :==
