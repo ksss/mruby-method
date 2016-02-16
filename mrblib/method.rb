@@ -4,10 +4,7 @@ class Method
     return false if self.class != other.class
     return false if owner != other.owner
     return false if @recv != other.receiver
-    return true if @proc == other.instance_variable_get(:@proc)
-    return false if @name != other.name
-
-    true
+    @proc == other.instance_variable_get(:@proc)
   end
   alias_method :eql?, :==
 

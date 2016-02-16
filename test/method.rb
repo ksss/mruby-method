@@ -256,6 +256,7 @@ assert 'Method#==' do
   assert_false(o.method(:foo).eql? m)
   assert_true(o.method(:foo).eql? o.method(:foo))
 
+  assert_false(0.method(:+) == 1.method(:+))
   assert_false(0.method(:+) == 0.method(:-))
   a = 0.method(:+)
   assert_true(a.method(:==) == a.method(:eql?))
@@ -264,6 +265,7 @@ end
 assert 'UnboundMethod#==' do
   assert_false(Fixnum.instance_method(:+) == Fixnum.instance_method(:-))
   assert_true(Fixnum.instance_method(:+) == Fixnum.instance_method(:+))
+  assert_false(Fixnum.instance_method(:+) == Float.instance_method(:+))
   assert_true(UnboundMethod.instance_method(:==) == UnboundMethod.instance_method(:eql?))
 end
 
