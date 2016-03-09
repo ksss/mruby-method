@@ -78,6 +78,13 @@ end
 assert 'Method#call' do
   assert_equal 3, 1.method(:+).call(2)
   assert_equal "ab", "a".method(:+)["b"]
+  klass = Class.new {
+    def foo; 42; end
+  }
+  klass2 = Class.new(klass) {
+    def foo; super; end
+  }
+  assert_equal 42, klass2.new.method(:foo).call
   # TODO: suppert with block
   # i = Class.new {
   #  def bar
