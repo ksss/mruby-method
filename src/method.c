@@ -59,13 +59,19 @@ static mrb_value
 method_call(mrb_state *mrb, mrb_value self)
 {
   mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
   struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
   mrb_int argc;
-  mrb_value *argv;
+  mrb_value *argv, ret;
+  mrb_sym orig_mid;
 
   mrb_get_args(mrb, "*", &argv, &argc);
-  return mrb_yield_with_class(mrb, proc, argc, argv, recv, owner);
+  orig_mid = mrb->c->ci->mid;
+  mrb->c->ci->mid = mrb_symbol(name);
+  ret = mrb_yield_with_class(mrb, proc, argc, argv, recv, owner);
+  mrb->c->ci->mid = orig_mid;
+  return ret;
 }
 
 static mrb_value
