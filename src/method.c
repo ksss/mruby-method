@@ -13,7 +13,7 @@ method_object_alloc(
   mrb_sym name,
   struct RProc *proc
 ) {
-  struct RObject *c = (struct RObject*)mrb_obj_alloc(mrb, MRB_TT_CLASS, mclass);
+  struct RObject *c = (struct RObject*)mrb_obj_alloc(mrb, MRB_TT_OBJECT, mclass);
 
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@recv"), recv);
