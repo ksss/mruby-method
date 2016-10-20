@@ -1,6 +1,6 @@
 class Method
   def ==(other)
-    return false unless Method === other
+    return false unless other.instance_of?(Method)
     return false if self.class != other.class
     return false if owner != other.owner
     return false if @recv != other.receiver
