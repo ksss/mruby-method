@@ -143,6 +143,11 @@ assert 'Method#to_proc' do
   assert_equal [:bar, nil, []], o.method(:foo).to_proc.call(:bar)
 #  We can fix this issue but leave until the problem
 #  assert_equal o.method(:foo).arity, o.method(:foo).to_proc.arity
+
+  def o.bar
+    yield 39
+  end
+  assert_equal 42, o.bar(&m)
 end
 
 assert 'to_s' do
