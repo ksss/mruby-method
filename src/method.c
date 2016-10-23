@@ -126,7 +126,7 @@ mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym
     mrb_value str_name = mrb_sym2str(mrb, name);
     *proc = mrb_method_search_vm(mrb, owner, respond_to_missing);
     if (*proc) {
-      if (mrb_test(mrb_funcall(mrb, obj, "respond_to_missing?", 2, mrb_symbol_value(name), mrb_false_value()))) {
+      if (mrb_test(mrb_funcall(mrb, obj, "respond_to_missing?", 2, mrb_symbol_value(name), mrb_true_value()))) {
         *owner = c;
       }
       else {
