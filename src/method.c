@@ -149,6 +149,8 @@ mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym
       mrb_raisef(mrb, E_NAME_ERROR, "undefined method `%S' for class `%S'", str_name, mrb_str_new_static(mrb, s, strlen(s)));
     }
   }
+  while ((*owner)->tt == MRB_TT_ICLASS)
+    *owner = (*owner)->c;
 }
 
 static mrb_value
