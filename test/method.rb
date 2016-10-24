@@ -61,6 +61,11 @@ assert 'Method#arity' do
       assert_equal(1, method(:ma1).arity)
 
       assert_equal(-1, method(:__send__).arity)
+      assert_equal(-1, method(:nothing).arity)
+    end
+
+    def respond_to_missing?(m, b)
+      m == :nothing
     end
   }.new.run
 end
@@ -95,6 +100,36 @@ assert 'Method#call' do
   # assert_equal 3, i.method(:bar).call { |i| i }
 end
 
+assert 'Method#call with undefined method' do
+  c = Class.new {
+    attr_accessor :m, :argv
+    def respond_to_missing?(m, b)
+      m == :foo
+    end
+
+    def method_missing(m, *argv)
+      @m = m
+      @argv = argv
+      super
+    end
+  }
+  cc = c.new
+  assert_raise(NameError) { cc.method(:nothing) }
+  assert_kind_of Method, cc.method(:foo)
+  assert_raise(NoMethodError) { cc.method(:foo).call(:arg1, :arg2) }
+  assert_equal :foo, cc.m
+  assert_equal [:arg1, :arg2], cc.argv
+
+  cc = c.new
+  m = cc.method(:foo)
+  c.class_eval do
+    def foo
+      :ng
+    end
+  end
+  assert_raise(NoMethodError) { m.call(:arg1, :arg2) }
+end
+
 assert 'Method#source_location' do
   filename = __FILE__
   klass = Class.new
@@ -106,29 +141,45 @@ assert 'Method#source_location' do
   lineno = __LINE__ + 1
   klass.define_singleton_method(:s_find_me_if_you_can) {}
   assert_equal [filename, lineno], klass.method(:s_find_me_if_you_can).source_location
+
+  klass = Class.new { def respond_to_missing?(m, b); m == :nothing; end }
+  assert_nil klass.new.method(:nothing).source_location
 end
 
 assert 'UnboundMethod#source_location' do
   filename = __FILE__
-  klass = Class.new
+  klass = Class.new {
+    def respond_to_missing?(m, b)
+      m == :nothing
+    end
+  }
 
   lineno = __LINE__ + 1
   klass.define_method(:find_me_if_you_can) {}
   assert_equal [filename, lineno], klass.instance_method(:find_me_if_you_can).source_location
+  assert_nil klass.new.method(:nothing).unbind.source_location
 end
 
 assert 'Method#parameters' do
   klass = Class.new {
     def foo(a, b=nil, *c) end
+    def respond_to_missing?(m, b)
+      m == :missing
+    end
   }
   assert_equal [[:req, :a], [:opt, :b], [:rest, :c]], klass.new.method(:foo).parameters
+  assert_equal [[:rest]], klass.new.method(:missing).parameters
 end
 
 assert 'UnboundMethod#parameters' do
-  klass = Module.new {
+  klass = Class.new {
     def foo(a, b=nil, *c) end
+    def respond_to_missing?(m, b)
+      m == :nothing
+    end
   }
   assert_equal [[:req, :a], [:opt, :b], [:rest, :c]], klass.instance_method(:foo).parameters
+  assert_equal [[:rest]], klass.new.method(:nothing).unbind.parameters
 end
 
 assert 'Method#to_proc' do
@@ -147,7 +198,7 @@ assert 'Method#to_proc' do
   def o.bar
     yield 39
   end
-  assert_equal 42, o.bar(&m)
+  assert_equal 42, o.bar(&3.method(:+))
 end
 
 assert 'to_s' do

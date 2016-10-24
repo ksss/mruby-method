@@ -16,11 +16,19 @@ class UnboundMethod
   end
 
   def source_location
-    @proc.source_location
+    if @proc
+      @proc.source_location
+    else
+      nil
+    end
   end
 
   def parameters
-    @proc.parameters
+    if @proc
+      @proc.parameters
+    else
+      [[:rest]]
+    end
   end
 
   def to_s

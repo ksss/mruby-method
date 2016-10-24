@@ -3,6 +3,7 @@
 #include "mruby/class.h"
 #include "mruby/variable.h"
 #include "mruby/proc.h"
+#include <alloca.h>
 
 static struct RObject *
 method_object_alloc(
@@ -11,14 +12,14 @@ method_object_alloc(
   struct RClass *owner,
   mrb_value recv,
   mrb_sym name,
-  struct RProc *proc
+  mrb_value proc
 ) {
   struct RObject *c = (struct RObject*)mrb_obj_alloc(mrb, MRB_TT_OBJECT, mclass);
 
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@recv"), recv);
   mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
-  mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@proc"), mrb_obj_value(proc));
+  mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@proc"), proc);
 
   return c;
 }
@@ -50,7 +51,7 @@ unbound_method_bind(mrb_state *mrb, mrb_value self)
     mrb_class_ptr(owner),
     recv,
     mrb_symbol(name),
-    mrb_proc_ptr(proc)
+    proc
   );
   return mrb_obj_value(me);
 }
@@ -62,14 +63,24 @@ method_call(mrb_state *mrb, mrb_value self)
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
   struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
-  mrb_int argc;
+  mrb_int argc, i;
   mrb_value *argv, ret;
   mrb_sym orig_mid;
 
   mrb_get_args(mrb, "*", &argv, &argc);
   orig_mid = mrb->c->ci->mid;
   mrb->c->ci->mid = mrb_symbol(name);
-  ret = mrb_yield_with_class(mrb, proc, argc, argv, recv, owner);
+  if (mrb_nil_p(proc)) {
+    mrb_value *missing_argv = alloca(sizeof(mrb_value) * (argc + 1));
+    missing_argv[0] = name;
+    for(i = 0; i < argc; i++) {
+      missing_argv[i + 1] = argv[i];
+    }
+    ret = mrb_funcall_argv(mrb, recv, mrb_intern_lit(mrb, "method_missing"), argc + 1, missing_argv);
+  }
+  else {
+    ret = mrb_yield_with_class(mrb, proc, argc, argv, recv, owner);
+  }
   mrb->c->ci->mid = orig_mid;
   return ret;
 }
@@ -87,7 +98,7 @@ method_unbind(mrb_state *mrb, mrb_value self)
     mrb_class_ptr(owner),
     mrb_nil_value(),
     mrb_symbol(name),
-    mrb_proc_ptr(proc)
+    proc
   );
   return mrb_obj_value(ume);
 }
@@ -111,7 +122,7 @@ method_super_method(mrb_state *mrb, mrb_value self)
     super,
     recv,
     name,
-    proc
+    mrb_obj_value(proc)
   );
   return mrb_obj_value(me);
 }
@@ -124,8 +135,7 @@ mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym
   if (!*proc) {
     mrb_sym respond_to_missing = mrb_intern_lit(mrb, "respond_to_missing?");
     mrb_value str_name = mrb_sym2str(mrb, name);
-    *proc = mrb_method_search_vm(mrb, owner, respond_to_missing);
-    if (*proc) {
+    if (mrb_method_search_vm(mrb, owner, respond_to_missing)) {
       if (mrb_test(mrb_funcall(mrb, obj, "respond_to_missing?", 2, mrb_symbol_value(name), mrb_true_value()))) {
         *owner = c;
       }
@@ -159,7 +169,7 @@ mrb_kernel_method(mrb_state *mrb, mrb_value self)
     owner,
     self,
     name,
-    proc
+    proc ? mrb_obj_value(proc) : mrb_nil_value()
   );
   return mrb_obj_value(me);
 }
@@ -182,7 +192,7 @@ mrb_module_instance_method(mrb_state *mrb, mrb_value self)
     owner,
     mrb_nil_value(),
     name,
-    proc
+    proc ? mrb_obj_value(proc) : mrb_nil_value()
   );
 
   return mrb_obj_value(ume);
