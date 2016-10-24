@@ -283,6 +283,11 @@ assert 'Kernel#method' do
   assert_raise(NameError) { o.method(:bar) }
 end
 
+assert "Module#instance_method" do
+  assert_kind_of UnboundMethod, Object.instance_method(:object_id)
+  assert_raise(NameError) { Object.instance_method(:nothing) }
+end
+
 assert 'Kernel#singleton_method' do
   c1 = Class.new {
     def foo; :foo; end
