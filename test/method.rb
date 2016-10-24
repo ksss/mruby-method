@@ -205,7 +205,6 @@ assert 'to_s' do
   o = Object.new
   def o.foo; end
   m = o.method(:foo)
-  m = o.method(:foo)
   assert_equal("#<UnboundMethod: #{ class << o; self; end.inspect }#foo>", m.unbind.inspect)
 
   c = Class.new
