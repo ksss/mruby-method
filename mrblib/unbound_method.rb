@@ -15,6 +15,14 @@ class UnboundMethod
     @name
   end
 
+  def arity
+    if @proc
+      @proc.arity
+    else
+      -1
+    end
+  end
+
   def source_location
     if @proc
       @proc.source_location

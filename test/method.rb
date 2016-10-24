@@ -335,6 +335,19 @@ assert "Method#initialize_copy" do
   assert_equal(m1, m2)
 end
 
+assert 'UnboundMethod#arity' do
+  c = Class.new {
+    def foo(a, b)
+    end
+
+    def respond_to_missing?(m, b)
+      m == :nothing
+    end
+  }
+  assert_equal 2, c.instance_method(:foo).arity
+  assert_equal -1, c.new.method(:nothing).unbind.arity
+end
+
 assert 'UnboundMethod#==' do
   assert_false(Fixnum.instance_method(:+) == Fixnum.instance_method(:-))
   assert_true(Fixnum.instance_method(:+) == Fixnum.instance_method(:+))
