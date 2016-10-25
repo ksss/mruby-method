@@ -128,29 +128,37 @@ method_super_method(mrb_state *mrb, mrb_value self)
 }
 
 static void
-mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym name, struct RClass **owner, struct RProc **proc)
+mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym name, struct RClass **owner, struct RProc **proc, mrb_bool unbound)
 {
+  mrb_value str_name;
+  mrb_value ret;
+  const char *s;
+
   *owner = c;
   *proc = mrb_method_search_vm(mrb, owner, name);
   if (!*proc) {
-    mrb_sym respond_to_missing = mrb_intern_lit(mrb, "respond_to_missing?");
-    mrb_value str_name = mrb_sym2str(mrb, name);
-    if (mrb_method_search_vm(mrb, owner, respond_to_missing)) {
-      if (mrb_test(mrb_funcall(mrb, obj, "respond_to_missing?", 2, mrb_symbol_value(name), mrb_true_value()))) {
-        *owner = c;
-      }
-      else {
-        const char *s = mrb_class_name(mrb, c);
-        mrb_raisef(mrb, E_NAME_ERROR, "undefined method `%S' for class `%S'", str_name, mrb_str_new_static(mrb, s, strlen(s)));
-      }
+    str_name = mrb_sym2str(mrb, name);
+    if (unbound) {
+      goto name_error;
     }
-    else {
-      const char *s = mrb_class_name(mrb, c);
-      mrb_raisef(mrb, E_NAME_ERROR, "undefined method `%S' for class `%S'", str_name, mrb_str_new_static(mrb, s, strlen(s)));
+    if (!mrb_respond_to(mrb, obj, mrb_intern_lit(mrb, "respond_to_missing?"))) {
+      goto name_error;
     }
+    ret = mrb_funcall(mrb, obj, "respond_to_missing?", 2, mrb_symbol_value(name), mrb_true_value());
+    if (!mrb_test(ret)) {
+      goto name_error;
+    }
+    *owner = c;
   }
+
   while ((*owner)->tt == MRB_TT_ICLASS)
     *owner = (*owner)->c;
+
+  return;
+
+name_error:
+  s = mrb_class_name(mrb, c);
+  mrb_raisef(mrb, E_NAME_ERROR, "undefined method `%S' for class `%S'", str_name, mrb_str_new_static(mrb, s, strlen(s)));
 }
 
 static mrb_value
@@ -163,7 +171,7 @@ mrb_kernel_method(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "n", &name);
 
-  mrb_search_method_owner(mrb, mrb_class(mrb, self), self, name, &owner, &proc);
+  mrb_search_method_owner(mrb, mrb_class(mrb, self), self, name, &owner, &proc, FALSE);
 
   me = method_object_alloc(
     mrb,
@@ -186,7 +194,7 @@ mrb_module_instance_method(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "n", &name);
 
-  mrb_search_method_owner(mrb, mrb_class_ptr(self), self, name, &owner, &proc);
+  mrb_search_method_owner(mrb, mrb_class_ptr(self), self, name, &owner, &proc, TRUE);
 
   ume = method_object_alloc(
     mrb,

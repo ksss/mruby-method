@@ -285,6 +285,12 @@ end
 assert "Module#instance_method" do
   assert_kind_of UnboundMethod, Object.instance_method(:object_id)
   assert_raise(NameError) { Object.instance_method(:nothing) }
+  c = Class.new {
+    def respond_to_missing?(m, b)
+      false
+    end
+  }
+  assert_raise(NameError) { c.instance_method(:nothing) }
 end
 
 assert 'Kernel#singleton_method' do
