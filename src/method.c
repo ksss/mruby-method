@@ -130,14 +130,12 @@ method_super_method(mrb_state *mrb, mrb_value self)
 static void
 mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym name, struct RClass **owner, struct RProc **proc, mrb_bool unbound)
 {
-  mrb_value str_name;
   mrb_value ret;
   const char *s;
 
   *owner = c;
   *proc = mrb_method_search_vm(mrb, owner, name);
   if (!*proc) {
-    str_name = mrb_sym2str(mrb, name);
     if (unbound) {
       goto name_error;
     }
@@ -158,7 +156,12 @@ mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym
 
 name_error:
   s = mrb_class_name(mrb, c);
-  mrb_raisef(mrb, E_NAME_ERROR, "undefined method `%S' for class `%S'", str_name, mrb_str_new_static(mrb, s, strlen(s)));
+  mrb_raisef(
+    mrb, E_NAME_ERROR,
+    "undefined method `%S' for class `%S'",
+    mrb_sym2str(mrb, name),
+    mrb_str_new_static(mrb, s, strlen(s))
+  );
 }
 
 static mrb_value
