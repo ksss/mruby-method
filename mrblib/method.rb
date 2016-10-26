@@ -9,8 +9,9 @@ class Method
   alias_method :eql?, :==
 
   def to_proc
+    m = self
     lambda { |*args|
-      self.call(*args)
+      m.call(*args)
     }
   end
 
