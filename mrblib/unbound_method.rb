@@ -1,12 +1,4 @@
 class UnboundMethod
-  def ==(other)
-    return false unless UnboundMethod === other
-    return false if self.class != other.class
-    return false if owner != other.owner
-    @proc == other.instance_variable_get(:@proc)
-  end
-  alias_method :eql?, :==
-
   def owner
     @owner
   end

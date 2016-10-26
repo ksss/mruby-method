@@ -35,3 +35,7 @@ MRuby::Build.new do |conf|
   enable_debug
 end
 ```
+
+# TODO
+
+- Check the called klass. Not owner. And apply to `to_s` and `==`.
