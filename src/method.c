@@ -6,22 +6,9 @@
 #include <alloca.h>
 
 static struct RObject *
-method_object_alloc(
-  mrb_state *mrb,
-  struct RClass *mclass,
-  struct RClass *owner,
-  mrb_value recv,
-  mrb_sym name,
-  mrb_value proc
-) {
-  struct RObject *c = (struct RObject*)mrb_obj_alloc(mrb, MRB_TT_OBJECT, mclass);
-
-  mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
-  mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@recv"), recv);
-  mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
-  mrb_obj_iv_set(mrb, c, mrb_intern_lit(mrb, "@proc"), proc);
-
-  return c;
+method_object_alloc(mrb_state *mrb, struct RClass *mclass)
+{
+  return (struct RObject*)mrb_obj_alloc(mrb, MRB_TT_OBJECT, mclass);
 }
 
 static mrb_value
@@ -45,14 +32,12 @@ unbound_method_bind(mrb_state *mrb, mrb_value self)
           mrb_raisef(mrb, E_TYPE_ERROR, "bind argument must be an instance of %S", mrb_str_new_static(mrb, s, strlen(s)));
         }
   }
-  me = method_object_alloc(
-    mrb,
-    mrb_class_get(mrb, "Method"),
-    mrb_class_ptr(owner),
-    recv,
-    mrb_symbol(name),
-    proc
-  );
+  me = method_object_alloc(mrb, mrb_class_get(mrb, "Method"));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@owner"), owner);
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@recv"), recv);
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), name);
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@proc"), proc);
+
   return mrb_obj_value(me);
 }
 
@@ -149,14 +134,13 @@ method_unbind(mrb_state *mrb, mrb_value self)
   mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
-  ume = method_object_alloc(
-    mrb,
-    mrb_class_get(mrb, "UnboundMethod"),
-    mrb_class_ptr(owner),
-    mrb_nil_value(),
-    mrb_symbol(name),
-    proc
-  );
+
+  ume = method_object_alloc(mrb, mrb_class_get(mrb, "UnboundMethod"));
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@owner"), owner);
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@recv"), mrb_nil_value());
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@name"), name);
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@proc"), proc);
+
   return mrb_obj_value(ume);
 }
 
@@ -173,14 +157,12 @@ method_super_method(mrb_state *mrb, mrb_value self)
   proc = mrb_method_search_vm(mrb, &super, name);
   if (!proc) return mrb_nil_value();
 
-  me = method_object_alloc(
-    mrb,
-    mrb_obj_class(mrb, self),
-    super,
-    recv,
-    name,
-    mrb_obj_value(proc)
-  );
+  me = method_object_alloc(mrb, mrb_obj_class(mrb, self));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(super));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@recv"), recv);
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@proc"), mrb_obj_value(proc));
+
   return mrb_obj_value(me);
 }
 
@@ -233,14 +215,12 @@ mrb_kernel_method(mrb_state *mrb, mrb_value self)
 
   mrb_search_method_owner(mrb, mrb_class(mrb, self), self, name, &owner, &proc, FALSE);
 
-  me = method_object_alloc(
-    mrb,
-    mrb_class_get(mrb, "Method"),
-    owner,
-    self,
-    name,
-    proc ? mrb_obj_value(proc) : mrb_nil_value()
-  );
+  me = method_object_alloc(mrb, mrb_class_get(mrb, "Method"));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@recv"), self);
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@proc"), proc ? mrb_obj_value(proc) : mrb_nil_value());
+
   return mrb_obj_value(me);
 }
 
@@ -256,14 +236,11 @@ mrb_module_instance_method(mrb_state *mrb, mrb_value self)
 
   mrb_search_method_owner(mrb, mrb_class_ptr(self), self, name, &owner, &proc, TRUE);
 
-  ume = method_object_alloc(
-    mrb,
-    mrb_class_get(mrb, "UnboundMethod"),
-    owner,
-    mrb_nil_value(),
-    name,
-    proc ? mrb_obj_value(proc) : mrb_nil_value()
-  );
+  ume = method_object_alloc(mrb, mrb_class_get(mrb, "UnboundMethod"));
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@recv"), mrb_nil_value());
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@proc"), proc ? mrb_obj_value(proc) : mrb_nil_value());
 
   return mrb_obj_value(ume);
 }
