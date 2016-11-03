@@ -148,19 +148,19 @@ static mrb_value
 method_super_method(mrb_state *mrb, mrb_value self)
 {
   mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
-  mrb_sym name = mrb_symbol(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name")));
   struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
   struct RClass *super = owner->super;
+  mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   struct RProc *proc;
   struct RObject *me;
 
-  proc = mrb_method_search_vm(mrb, &super, name);
+  proc = mrb_method_search_vm(mrb, &super, mrb_symbol(name));
   if (!proc) return mrb_nil_value();
 
   me = method_object_alloc(mrb, mrb_obj_class(mrb, self));
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(super));
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@recv"), recv);
-  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), name);
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@proc"), mrb_obj_value(proc));
 
   return mrb_obj_value(me);
