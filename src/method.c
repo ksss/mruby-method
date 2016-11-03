@@ -253,7 +253,7 @@ mrb_module_instance_method(mrb_state *mrb, mrb_value self)
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@recv"), mrb_nil_value());
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@proc"), proc ? mrb_obj_value(proc) : mrb_nil_value());
-  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@klass"), mrb_obj_value(klass));
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@klass"), self);
 
   return mrb_obj_value(ume);
 }
