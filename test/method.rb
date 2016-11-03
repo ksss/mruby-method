@@ -314,6 +314,17 @@ assert 'Method#super_method' do
   assert_true(o.equal? m.receiver)
   assert_equal(:foo, m.name)
   assert_nil(m.super_method)
+
+  c = Class.new {
+    def foo; end
+  }
+  o = c.new
+  o.extend Module.new {
+    def foo; end
+  }
+  assert_equal c, o.method(:foo).super_method.owner
+  assert_equal :foo, o.method(:foo).super_method.name
+  assert_equal o, o.method(:foo).super_method.receiver
 end
 
 assert 'Method#==' do
