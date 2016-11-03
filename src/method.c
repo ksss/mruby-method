@@ -48,7 +48,7 @@ static mrb_value
 method_eql(mrb_state *mrb, mrb_value self)
 {
   mrb_value other, receiver, orig_proc, other_proc;
-  struct RClass *owner;
+  struct RClass *owner, *klass;
   struct RProc *orig_rproc, *other_rproc;
 
   mrb_get_args(mrb, "o", &other);
@@ -56,6 +56,10 @@ method_eql(mrb_state *mrb, mrb_value self)
     return mrb_false_value();
 
   if (mrb_class(mrb, self) != mrb_class(mrb, other))
+    return mrb_false_value();
+
+  klass = mrb_class_ptr(IV_GET(self, "@klass"));
+  if (klass != mrb_class_ptr(IV_GET(other, "@klass")))
     return mrb_false_value();
 
   owner = mrb_class_ptr(IV_GET(self, "@owner"));
