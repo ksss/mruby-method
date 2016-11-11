@@ -158,14 +158,27 @@ method_super_method(mrb_state *mrb, mrb_value self)
 {
   mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
   mrb_value klass = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@klass"));
+  mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   struct RClass *super, *rklass;
   struct RProc *proc;
   struct RObject *me;
 
-  super = mrb_class_ptr(klass)->super;
+  switch (mrb_type(klass)) {
+    case MRB_TT_SCLASS:
+      super = mrb_class_ptr(klass)->super->super;
+      break;
+    case MRB_TT_ICLASS:
+      super = mrb_class_ptr(klass)->super;
+      break;
+    default:
+      super = mrb_class_ptr(owner)->super;
+      break;
+  }
+
   proc = mrb_method_search_vm(mrb, &super, mrb_symbol(name));
-  if (!proc) return mrb_nil_value();
+  if (!proc)
+    return mrb_nil_value();
 
   rklass = super;
   while (super->tt == MRB_TT_ICLASS)
