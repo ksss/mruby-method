@@ -3,6 +3,7 @@
 #include "mruby/class.h"
 #include "mruby/variable.h"
 #include "mruby/proc.h"
+#include "mruby/string.h"
 #include <alloca.h>
 
 static struct RObject *
@@ -180,6 +181,34 @@ method_super_method(mrb_state *mrb, mrb_value self)
   return mrb_obj_value(me);
 }
 
+static mrb_value
+method_to_s(mrb_state *mrb, mrb_value self)
+{
+  mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
+  mrb_value klass = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@klass"));
+  mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
+  mrb_value str = mrb_str_new_lit(mrb, "#<");
+  struct RClass *rklass;
+
+  mrb_str_cat_cstr(mrb, str, mrb_obj_classname(mrb, self));
+  mrb_str_cat_lit(mrb, str, ": ");
+  rklass = mrb_class_ptr(klass);
+  if (mrb_class_ptr(owner) == rklass) {
+    mrb_str_cat_str(mrb, str, mrb_funcall(mrb, owner, "to_s", 0));
+    mrb_str_cat_lit(mrb, str, "#");
+    mrb_str_cat_str(mrb, str, mrb_funcall(mrb, name, "to_s", 0));
+  }
+  else {
+    mrb_str_cat_cstr(mrb, str, mrb_class_name(mrb, rklass));
+    mrb_str_cat_lit(mrb, str, "(");
+    mrb_str_cat_str(mrb, str, mrb_funcall(mrb, owner, "to_s", 0));
+    mrb_str_cat_lit(mrb, str, ")#");
+    mrb_str_cat_str(mrb, str, mrb_funcall(mrb, name, "to_s", 0));
+  }
+  mrb_str_cat_lit(mrb, str, ">");
+  return str;
+}
+
 static void
 mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym name, struct RClass **owner, struct RProc **proc, mrb_bool unbound)
 {
@@ -272,10 +301,14 @@ mrb_mruby_method_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, unbound_method, "super_method", method_super_method, MRB_ARGS_NONE());
   mrb_define_method(mrb, unbound_method, "==", method_eql, MRB_ARGS_REQ(1));
   mrb_alias_method(mrb, unbound_method, mrb_intern_lit(mrb, "eql?"), mrb_intern_lit(mrb, "=="));
+  mrb_define_method(mrb, unbound_method, "to_s", method_to_s, MRB_ARGS_NONE());
+  mrb_define_method(mrb, unbound_method, "inspect", method_to_s, MRB_ARGS_NONE());
 
   mrb_undef_class_method(mrb, method, "new");
   mrb_define_method(mrb, method, "==", method_eql, MRB_ARGS_REQ(1));
   mrb_alias_method(mrb, method, mrb_intern_lit(mrb, "eql?"), mrb_intern_lit(mrb, "=="));
+  mrb_define_method(mrb, method, "to_s", method_to_s, MRB_ARGS_NONE());
+  mrb_define_method(mrb, method, "inspect", method_to_s, MRB_ARGS_NONE());
   mrb_define_method(mrb, method, "call", method_call, MRB_ARGS_ANY());
   mrb_alias_method(mrb, method, mrb_intern_lit(mrb, "[]"), mrb_intern_lit(mrb, "call"));
   mrb_define_method(mrb, method, "unbind", method_unbind, MRB_ARGS_NONE());

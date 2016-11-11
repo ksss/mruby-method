@@ -30,9 +30,4 @@ class UnboundMethod
       [[:rest]]
     end
   end
-
-  def to_s
-    "#<#{self.class}: #{@owner}##{@name}>"
-  end
-  alias inspect to_s
 end
