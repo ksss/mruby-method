@@ -36,6 +36,28 @@ MRuby::Build.new do |conf|
 end
 ```
 
-# TODO
+# Supported Methods
 
-- Check the called klass. Not owner. And apply to `to_s` and `==`.
+## Method class
+
+- `Method#name`
+- `Method#call`
+- `Method#super_method`
+- `Method#arity`
+- `Method#unbind`
+- `Method#[]`
+- `Method#owner`
+- `Method#receiver`
+- `Method#parameters`
+- `Method#source_location`
+- `Method#to_proc`
+
+## UnboundMethod class
+
+- `UnboundMethod#name`
+- `UnboundMethod#bind`
+- `UnboundMethod#super_method`
+- `UnboundMethod#arity`
+- `UnboundMethod#owner`
+- `UnboundMethod#parameters`
+- `UnboundMethod#source_location`
