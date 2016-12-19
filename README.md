@@ -38,6 +38,15 @@ end
 
 # Supported Methods
 
+## Kernel
+
+- `Kernel#method`
+- `Kernel#singleton_method`
+
+## Module
+
+- `Module#instance_method`
+
 ## Method class
 
 - `Method#name`
@@ -61,3 +70,8 @@ end
 - `UnboundMethod#owner`
 - `UnboundMethod#parameters`
 - `UnboundMethod#source_location`
+
+# See also
+
+- https://ruby-doc.org/core-2.3.3/Method.html
+- https://ruby-doc.org/core-2.3.3/UnboundMethod.html
