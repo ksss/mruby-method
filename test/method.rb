@@ -100,6 +100,14 @@ assert 'Method#call' do
   # assert_equal 3, i.method(:bar).call { |i| i }
 end
 
+assert 'Method#call for regression' do
+  obj = BasicObject.new
+  def obj.foo
+    :ok
+  end
+  assert_equal :ok, Kernel.instance_method(:send).bind(obj).call(:foo), "https://github.com/ksss/mruby-method/issues/4"
+end
+
 assert 'Method#call with undefined method' do
   c = Class.new {
     attr_accessor :m, :argv
