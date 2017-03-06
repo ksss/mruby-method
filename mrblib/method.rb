@@ -1,5 +1,4 @@
 class Method
-
   def to_proc
     m = self
     lambda { |*args|
