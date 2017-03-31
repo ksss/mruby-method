@@ -113,10 +113,10 @@ method_call(mrb_state *mrb, mrb_value self)
   mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
   struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
   mrb_int argc, i;
-  mrb_value *argv, ret;
+  mrb_value *argv, ret, block;
   mrb_sym orig_mid;
 
-  mrb_get_args(mrb, "*", &argv, &argc);
+  mrb_get_args(mrb, "*&", &argv, &argc, &block);
   orig_mid = mrb->c->ci->mid;
   mrb->c->ci->mid = mrb_symbol(name);
   if (mrb_nil_p(proc)) {
@@ -126,6 +126,13 @@ method_call(mrb_state *mrb, mrb_value self)
       missing_argv[i + 1] = argv[i];
     }
     ret = mrb_funcall_argv(mrb, recv, mrb_intern_lit(mrb, "method_missing"), argc + 1, missing_argv);
+  }
+  else if (!mrb_nil_p(block)) {
+    /*
+      workaround since `mrb_yield_with_class` does not support passing block as parameter
+      need new API that initializes `mrb->c->stack[argc+1]` with block passed by argument
+    */
+    ret = mrb_funcall_with_block(mrb, recv, mrb_symbol(name), argc, argv, block);
   }
   else {
     ret = mrb_yield_with_class(mrb, proc, argc, argv, recv, owner);
