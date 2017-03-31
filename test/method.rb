@@ -374,7 +374,7 @@ assert 'UnboundMethod#arity' do
     end
   }
   assert_equal 2, c.instance_method(:foo).arity
-  assert_equal -1, c.new.method(:nothing).unbind.arity
+  assert_equal(-1, c.new.method(:nothing).unbind.arity)
 end
 
 assert 'UnboundMethod#==' do
