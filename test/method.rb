@@ -139,6 +139,8 @@ assert 'Method#call with undefined method' do
 end
 
 assert 'Method#source_location' do
+  skip if proc{}.source_location.nil?
+
   filename = __FILE__
   klass = Class.new
 
@@ -155,6 +157,8 @@ assert 'Method#source_location' do
 end
 
 assert 'UnboundMethod#source_location' do
+  skip if proc{}.source_location.nil?
+
   filename = __FILE__
   klass = Class.new {
     def respond_to_missing?(m, b)
