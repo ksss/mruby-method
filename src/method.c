@@ -120,7 +120,7 @@ method_call(mrb_state *mrb, mrb_value self)
   orig_mid = mrb->c->ci->mid;
   mrb->c->ci->mid = mrb_symbol(name);
   if (mrb_nil_p(proc)) {
-    mrb_value *missing_argv = alloca(sizeof(mrb_value) * (argc + 1));
+    mrb_value *missing_argv = (mrb_value*)alloca(sizeof(mrb_value) * (argc + 1));
     missing_argv[0] = name;
     for(i = 0; i < argc; i++) {
       missing_argv[i + 1] = argv[i];
