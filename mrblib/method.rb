@@ -1,8 +1,8 @@
 class Method
   def to_proc
     m = self
-    lambda { |*args|
-      m.call(*args)
+    lambda { |*args, &b|
+      m.call(*args, &b)
     }
   end
 

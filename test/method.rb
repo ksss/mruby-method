@@ -90,14 +90,14 @@ assert 'Method#call' do
     def foo; super; end
   }
   assert_equal 42, klass2.new.method(:foo).call
-  # TODO: suppert with block
-  # i = Class.new {
-  #  def bar
-  #    yield 3
-  #  end
-  # }.new
-  # assert_raise(LocalJumpError) { i.method(:bar).call }
-  # assert_equal 3, i.method(:bar).call { |i| i }
+
+  i = Class.new {
+   def bar
+     yield 3
+   end
+  }.new
+  assert_raise(LocalJumpError) { i.method(:bar).call }
+  assert_equal 3, i.method(:bar).call { |i| i }
 end
 
 assert 'Method#call for regression' do
@@ -139,6 +139,8 @@ assert 'Method#call with undefined method' do
 end
 
 assert 'Method#source_location' do
+  skip if proc{}.source_location.nil?
+
   filename = __FILE__
   klass = Class.new
 
@@ -155,6 +157,8 @@ assert 'Method#source_location' do
 end
 
 assert 'UnboundMethod#source_location' do
+  skip if proc{}.source_location.nil?
+
   filename = __FILE__
   klass = Class.new {
     def respond_to_missing?(m, b)
@@ -272,10 +276,16 @@ assert 'Method#unbind' do
     def foo() :changed end
   end
   assert_equal(:changed, Derived.new.foo)
+  assert_equal(:changed, Derived.new.foo{})
   assert_equal(:derived, um.bind(Derived.new).call)
   assert_raise(TypeError) do
     um.bind(Base.new)
   end
+
+  # TODO:
+  #  Block passed method not handled correctly with workaround.
+  #  See comment near `mrb_funcall_with_block` for detail.
+  # assert_equal(:derived, um.bind(Derived.new).call{})
 end
 
 assert 'Kernel#method' do
@@ -374,7 +384,7 @@ assert 'UnboundMethod#arity' do
     end
   }
   assert_equal 2, c.instance_method(:foo).arity
-  assert_equal -1, c.new.method(:nothing).unbind.arity
+  assert_equal(-1, c.new.method(:nothing).unbind.arity)
 end
 
 assert 'UnboundMethod#==' do
