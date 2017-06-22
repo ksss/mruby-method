@@ -1,4 +1,5 @@
 #include "mruby.h"
+#include "mruby/array.h"
 #include "mruby/data.h"
 #include "mruby/class.h"
 #include "mruby/variable.h"
@@ -202,6 +203,66 @@ method_super_method(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+method_arity(mrb_state *mrb, mrb_value self)
+{
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  struct RProc *rproc;
+  struct RClass *orig;
+  mrb_value ret;
+
+  if (mrb_nil_p(proc))
+    return mrb_fixnum_value(-1);
+
+  rproc = mrb_proc_ptr(proc);
+  orig = rproc->c;
+  rproc->c = mrb->proc_class;
+  ret = mrb_funcall(mrb, proc, "arity", 0);
+  rproc->c = orig;
+  return ret;
+}
+
+static mrb_value
+method_source_location(mrb_state *mrb, mrb_value self)
+{
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  struct RProc *rproc;
+  struct RClass *orig;
+  mrb_value ret;
+
+  if (mrb_nil_p(proc))
+    return mrb_nil_value();
+
+  rproc = mrb_proc_ptr(proc);
+  orig = rproc->c;
+  rproc->c = mrb->proc_class;
+  ret = mrb_funcall(mrb, proc, "source_location", 0);
+  rproc->c = orig;
+  return ret;
+}
+
+static mrb_value
+method_parameters(mrb_state *mrb, mrb_value self)
+{
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  struct RProc *rproc;
+  struct RClass *orig;
+  mrb_value ret;
+
+  if (mrb_nil_p(proc)) {
+    mrb_value rest = mrb_symbol_value(mrb_intern_lit(mrb, "rest"));
+    mrb_value arest = mrb_ary_new_from_values(mrb, 1, &rest);
+    return mrb_ary_new_from_values(mrb, 1, &arest);
+  }
+
+  rproc = mrb_proc_ptr(proc);
+  orig = rproc->c;
+  rproc->c = mrb->proc_class;
+  ret = mrb_funcall(mrb, proc, "parameters", 0);
+  rproc->c = orig;
+  return ret;
+}
+
+static mrb_value
 method_to_s(mrb_state *mrb, mrb_value self)
 {
   mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
@@ -323,6 +384,9 @@ mrb_mruby_method_gem_init(mrb_state* mrb)
   mrb_alias_method(mrb, unbound_method, mrb_intern_lit(mrb, "eql?"), mrb_intern_lit(mrb, "=="));
   mrb_define_method(mrb, unbound_method, "to_s", method_to_s, MRB_ARGS_NONE());
   mrb_define_method(mrb, unbound_method, "inspect", method_to_s, MRB_ARGS_NONE());
+  mrb_define_method(mrb, unbound_method, "arity", method_arity, MRB_ARGS_NONE());
+  mrb_define_method(mrb, unbound_method, "source_location", method_source_location, MRB_ARGS_NONE());
+  mrb_define_method(mrb, unbound_method, "parameters", method_parameters, MRB_ARGS_NONE());
 
   mrb_undef_class_method(mrb, method, "new");
   mrb_define_method(mrb, method, "==", method_eql, MRB_ARGS_REQ(1));
@@ -333,6 +397,9 @@ mrb_mruby_method_gem_init(mrb_state* mrb)
   mrb_alias_method(mrb, method, mrb_intern_lit(mrb, "[]"), mrb_intern_lit(mrb, "call"));
   mrb_define_method(mrb, method, "unbind", method_unbind, MRB_ARGS_NONE());
   mrb_define_method(mrb, method, "super_method", method_super_method, MRB_ARGS_NONE());
+  mrb_define_method(mrb, method, "arity", method_arity, MRB_ARGS_NONE());
+  mrb_define_method(mrb, method, "source_location", method_source_location, MRB_ARGS_NONE());
+  mrb_define_method(mrb, method, "parameters", method_parameters, MRB_ARGS_NONE());
 
   mrb_define_method(mrb, mrb->kernel_module, "method", mrb_kernel_method, MRB_ARGS_REQ(1));
 
