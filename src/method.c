@@ -19,7 +19,7 @@ unbound_method_bind(mrb_state *mrb, mrb_value self)
   struct RObject *me;
   mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
-  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "proc"));
   mrb_value klass = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@klass"));
   mrb_value recv;
 
@@ -39,7 +39,7 @@ unbound_method_bind(mrb_state *mrb, mrb_value self)
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@owner"), owner);
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@recv"), recv);
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), name);
-  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@proc"), proc);
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "proc"), proc);
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@klass"), klass);
 
   return mrb_obj_value(me);
@@ -72,8 +72,8 @@ method_eql(mrb_state *mrb, mrb_value self)
   if (!mrb_obj_equal(mrb, receiver, IV_GET(other, "@recv")))
     return mrb_false_value();
 
-  orig_proc = IV_GET(self, "@proc");
-  other_proc = IV_GET(other, "@proc");
+  orig_proc = IV_GET(self, "proc");
+  other_proc = IV_GET(other, "proc");
   if (mrb_nil_p(orig_proc) && mrb_nil_p(other_proc)) {
     if (mrb_symbol(IV_GET(self, "@name")) == mrb_symbol(IV_GET(other, "@name")))
       return mrb_true_value();
@@ -109,7 +109,7 @@ method_eql(mrb_state *mrb, mrb_value self)
 static mrb_value
 method_call(mrb_state *mrb, mrb_value self)
 {
-  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "proc"));
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
   mrb_value recv = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@recv"));
   struct RClass *owner = mrb_class_ptr(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner")));
@@ -148,14 +148,14 @@ method_unbind(mrb_state *mrb, mrb_value self)
   struct RObject *ume;
   mrb_value owner = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@owner"));
   mrb_value name = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@name"));
-  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "proc"));
   mrb_value klass = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@klass"));
 
   ume = method_object_alloc(mrb, mrb_class_get(mrb, "UnboundMethod"));
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@owner"), owner);
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@recv"), mrb_nil_value());
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@name"), name);
-  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@proc"), proc);
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "proc"), proc);
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@klass"), klass);
 
   return mrb_obj_value(ume);
@@ -196,7 +196,7 @@ method_super_method(mrb_state *mrb, mrb_value self)
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(super));
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@recv"), recv);
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), name);
-  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@proc"), mrb_obj_value(proc));
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "proc"), mrb_obj_value(proc));
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@klass"), mrb_obj_value(rklass));
 
   return mrb_obj_value(me);
@@ -205,7 +205,7 @@ method_super_method(mrb_state *mrb, mrb_value self)
 static mrb_value
 method_arity(mrb_state *mrb, mrb_value self)
 {
-  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "proc"));
   struct RProc *rproc;
   struct RClass *orig;
   mrb_value ret;
@@ -224,7 +224,7 @@ method_arity(mrb_state *mrb, mrb_value self)
 static mrb_value
 method_source_location(mrb_state *mrb, mrb_value self)
 {
-  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "proc"));
   struct RProc *rproc;
   struct RClass *orig;
   mrb_value ret;
@@ -243,7 +243,7 @@ method_source_location(mrb_state *mrb, mrb_value self)
 static mrb_value
 method_parameters(mrb_state *mrb, mrb_value self)
 {
-  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@proc"));
+  mrb_value proc = mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "proc"));
   struct RProc *rproc;
   struct RClass *orig;
   mrb_value ret;
@@ -343,7 +343,7 @@ mrb_kernel_method(mrb_state *mrb, mrb_value self)
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@recv"), self);
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
-  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@proc"), proc ? mrb_obj_value(proc) : mrb_nil_value());
+  mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "proc"), proc ? mrb_obj_value(proc) : mrb_nil_value());
   mrb_obj_iv_set(mrb, me, mrb_intern_lit(mrb, "@klass"), mrb_obj_value(mrb_class(mrb, self)));
 
   return mrb_obj_value(me);
@@ -365,7 +365,7 @@ mrb_module_instance_method(mrb_state *mrb, mrb_value self)
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@owner"), mrb_obj_value(owner));
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@recv"), mrb_nil_value());
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@name"), mrb_symbol_value(name));
-  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@proc"), proc ? mrb_obj_value(proc) : mrb_nil_value());
+  mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "proc"), proc ? mrb_obj_value(proc) : mrb_nil_value());
   mrb_obj_iv_set(mrb, ume, mrb_intern_lit(mrb, "@klass"), self);
 
   return mrb_obj_value(ume);
