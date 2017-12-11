@@ -164,12 +164,17 @@ method_unbind(mrb_state *mrb, mrb_value self)
 static struct RProc *
 method_search_vm(mrb_state *mrb, struct RClass **cp, mrb_sym mid)
 {
+#ifdef MRB_METHOD_UNDEF_P
   mrb_method_t m = mrb_method_search_vm(mrb, cp, mid);
   if (MRB_METHOD_UNDEF_P(m))
     return NULL;
   if (MRB_METHOD_PROC_P(m))
     return MRB_METHOD_PROC(m);
   return mrb_proc_new_cfunc(mrb, MRB_METHOD_FUNC(m));
+#else
+  /* for backward compatibility until mruby v1.3*/
+  return mrb_method_search_vm(mrb, cp, mid);
+#endif
 }
 
 static mrb_value
