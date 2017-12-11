@@ -161,6 +161,15 @@ method_unbind(mrb_state *mrb, mrb_value self)
   return mrb_obj_value(ume);
 }
 
+static struct RProc *
+method_search_vm(mrb_state *mrb, struct RClass **cp, mrb_sym mid)
+{
+  mrb_method_t m = mrb_method_search_vm(mrb, cp, mid);
+  if (MRB_METHOD_PROC_P(m))
+    return MRB_METHOD_PROC(m);
+  return mrb_proc_new_cfunc(mrb, MRB_METHOD_FUNC(m));
+}
+
 static mrb_value
 method_super_method(mrb_state *mrb, mrb_value self)
 {
@@ -184,7 +193,7 @@ method_super_method(mrb_state *mrb, mrb_value self)
       break;
   }
 
-  proc = mrb_method_search_vm(mrb, &super, mrb_symbol(name));
+  proc = method_search_vm(mrb, &super, mrb_symbol(name));
   if (!proc)
     return mrb_nil_value();
 
@@ -297,7 +306,7 @@ mrb_search_method_owner(mrb_state *mrb, struct RClass *c, mrb_value obj, mrb_sym
   const char *s;
 
   *owner = c;
-  *proc = mrb_method_search_vm(mrb, owner, name);
+  *proc = method_search_vm(mrb, owner, name);
   if (!*proc) {
     if (unbound) {
       goto name_error;
